@@ -23,11 +23,21 @@ io.on('connection', function(socket){
     console.log('disconnected');
   });
 
-  socket.emit('server-to-client', { server: 'server connected' });
-  socket.on('client-to-server', function (data) {
-    // socket.emit('server-to-client', { server: data.message });
-    io.emit('server-to-client', { server: data.message });
+  socket.emit('server-to-client', {
+    type: 'server',
+    username: '',
+    message: 'Server Connected'
   });
+
+  socket.on('client-to-server', function (data) {
+    // socket.emit('server-to-client', { server: data.message }); //คือการส่งหาคน คนนั้นคนเดียว
+    io.emit('server-to-client', {
+      type: 'user',
+      username: data.username,
+      message: data.message
+    }); // คือการ Board Cast ทุกคนที่อยู่ใน Socket ตัวนี้
+  });
+
 });
 
 http.listen(3000, function(){

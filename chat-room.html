@@ -16,23 +16,29 @@
     <script>
         var socket = io();
         socket.on('server-to-client', function (data) {
-            $('#listMessage').append(`<div class="mt-2 pl-2 pr-2">
-                                            ${data.server}
-                                        </div>`);
+            if (data.type == 'user') {
+                $('#listMessage').append(`
+                    <div class="mt-2 pl-2 pr-2">
+                        ${data.message}
+                    </div>
+                `);
+            }
         });
         $(document).ready(function () {
             $('#send').click(function () {
-                console.log($('#message').val())
-                socket.emit('client-to-server', { username: 'Chaiayrin', message: $('#message').val() });
+                socket.emit('client-to-server', {
+                    type: 'user',
+                    username: 'Chaiyarin',
+                    message: $('#message').val()
+                });
+                $('#message').val('');
             });
         });
     </script>
 </head>
+
 <body>
-    <div style="height:93vh; overflow-y:scroll;" id="listMessage">
-        <div class="mt-2 pl-2 pr-2">
-            Chaiyarin Message
-        </div>
+    <div style="height:93vh; overflow-y:scroll;" id="listMessage"></div>
     <div class="input-group fixed-bottom">
         <input type="text" class="form-control" id="message" placeholder="Message" aria-label="Message" aria-describedby="button-addon2">
         <div class="input-group-append">

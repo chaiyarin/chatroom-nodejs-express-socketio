@@ -1,5 +1,6 @@
 <!DOCTYPE html>
 <html lang="en">
+
 <head>
     <meta charset="UTF-8">
     <meta name="viewport" content="width=device-width, initial-scale=1.0">
@@ -14,12 +15,24 @@
         crossorigin="anonymous"></script>
     <script src="/socket.io/socket.io.js"></script>
     <script>
+        var username = "<%= data.username %>";
         var socket = io();
         socket.on('server-to-client', function (data) {
-            if (data.type == 'user') {
+            if (data.type == 'user' && data.username == username) {
                 $('#listMessage').append(`
-                    <div class="mt-2 pl-2 pr-2">
-                        ${data.message}
+                    <div class="mt-2 pl-2 pr-2 text-right bg-primary" style="width: 100%; position: relative;">
+                        <div style="width: 60%; float: right; color: green;" class="text-right">
+                            ${data.message}
+                        </div>
+                    </div>
+                `);
+            }
+            if (data.type == 'user' && data.username != username) {
+                $('#listMessage').append(`
+                    <div class="mt-2 pl-2 pr-2" style="width: 100%;">
+                        <div style="width: 60%; float: left; color: blue;">
+                            ${data.username} : ${data.message}
+                        </div>
                     </div>
                 `);
             }
@@ -28,7 +41,7 @@
             $('#send').click(function () {
                 socket.emit('client-to-server', {
                     type: 'user',
-                    username: 'Chaiyarin',
+                    username: username,
                     message: $('#message').val()
                 });
                 $('#message').val('');
@@ -38,7 +51,12 @@
 </head>
 
 <body>
-    <div style="height:93vh; overflow-y:scroll;" id="listMessage"></div>
+    <div style="height:93vh; overflow-y:scroll;  position: relative;">
+        <div style=" position: absolute;
+        bottom: 0; width: 100%;" id="listMessage">
+
+        </div>
+    </div>
     <div class="input-group fixed-bottom">
         <input type="text" class="form-control" id="message" placeholder="Message" aria-label="Message" aria-describedby="button-addon2">
         <div class="input-group-append">

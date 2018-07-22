@@ -2,6 +2,10 @@ var express = require('express');
 var app = require('express')();
 var http = require('http').Server(app);
 var io = require('socket.io')(http);
+var bodyParser = require('body-parser');
+app.set('view engine', 'ejs');
+app.use(bodyParser.urlencoded({ extended: false }))
+app.use(bodyParser.json())
 
 app.use(express.static(__dirname));
 
@@ -10,11 +14,11 @@ app.get('/', function(req, res){
 });
 
 app.post('/chat-room', (req, res) => {
-  res.sendFile(__dirname + '/chat-room.html');
+  res.render(__dirname + '/chat-room',{ data: req.body})
 })
 
 app.get('/chat-room', (req, res) => {
-  res.sendFile(__dirname + '/chat-room.html');
+  res.sendFile(__dirname + '/index.html');
 })
 
 io.on('connection', function(socket){
@@ -31,6 +35,7 @@ io.on('connection', function(socket){
 
   socket.on('client-to-server', function (data) {
     // socket.emit('server-to-client', { server: data.message }); //คือการส่งหาคน คนนั้นคนเดียว
+    console.log(data);
     io.emit('server-to-client', {
       type: 'user',
       username: data.username,

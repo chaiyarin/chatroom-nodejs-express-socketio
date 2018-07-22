@@ -39,15 +39,10 @@
         });
         $(document).ready(function () {
             $('#send').click(function () {
-                socket.emit('client-to-server', {
-                    type: 'user',
-                    username: username,
-                    message: $('#message').val()
-                });
-                $('#message').val('');
+                sendMessage();
             });
-            if(isSafari()){
-                $('#listBoxMessage').css('height','80vh');
+            if (isSafari()) {
+                $('#listBoxMessage').css('height', '80vh');
             }
         });
         function isSafari() {
@@ -56,6 +51,19 @@
                 return true;
             }
             return false;
+        }
+        function checkEnterKey(event){
+            if(event.code == "Enter"){
+                sendMessage();
+            }
+        }
+        function sendMessage(){
+            socket.emit('client-to-server', {
+                    type: 'user',
+                    username: username,
+                    message: $('#message').val()
+            });
+            $('#message').val('');
         }
     </script>
 </head>
@@ -68,7 +76,7 @@
         </div>
     </div>
     <div class="input-group fixed-bottom">
-        <input type="text" class="form-control" id="message" placeholder="Message" aria-label="Message" aria-describedby="button-addon2">
+        <input type="text" class="form-control" onKeypress="checkEnterKey(event,this);" id="message" placeholder="Message" aria-label="Message" aria-describedby="button-addon2">
         <div class="input-group-append">
             <button class="btn btn-secondary" type="button" id="send">Send</button>
         </div>

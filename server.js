@@ -9,22 +9,46 @@ app.use(bodyParser.json())
 
 app.use(express.static(__dirname));
 
-app.get('/', function(req, res){
+app.get('/', function (req, res) {
   res.sendFile(__dirname + '/index.html');
 });
 
 app.post('/chat-room', (req, res) => {
-  res.render(__dirname + '/chat-room',{ data: req.body})
+  res.render(__dirname + '/chat-room', { data: req.body })
 })
 
 app.get('/chat-room', (req, res) => {
   res.sendFile(__dirname + '/index.html');
 })
 
-io.on('connection', function(socket){
+var memberList = new Array();
 
-  socket.on('disconnect', function(){
-    console.log('disconnected');
+io.on('connection', function (socket) {
+  const _id = socket.id;
+  memberList.push({
+    key: _id,
+    value: socket.handshake.query.username
+  });
+
+  socket.broadcast.emit('server-to-client', {
+    type: 'user',
+    username: socket.handshake.query.username,
+    message: 'ฉันเข้ามาแล้วนะคะ'
+  });
+
+  socket.on('disconnect', function () {
+    Object.keys(memberList).forEach(function (index) {
+      // do something with obj[key]
+      if(memberList[index].key == _id){
+        console.log('คนที่ออกคือ : ' + memberList[index].value);
+        socket.broadcast.emit('server-to-client', {
+          type: 'user',
+          username: memberList[index].value,
+          message: 'ฉันออกแล้วนะ'
+        });
+      }
+    });
+    console.log('disconnected : ' + _id);
   });
 
   socket.emit('server-to-client', {
@@ -45,6 +69,6 @@ io.on('connection', function(socket){
 
 });
 var port = process.env.PORT || 3000;
-http.listen(port, function(){
+http.listen(port, function () {
   console.log('listening on *:3000');
 });
